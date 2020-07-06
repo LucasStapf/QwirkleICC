@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "interface.h"
+#include "erros.h"
 
 void limparTela(){
   printf("\e[H\e[2J");
@@ -147,12 +148,13 @@ void printJogo(Gerenciador gerenciador){
 
     printf("Comandos disponiveis: jogar <peca> <linha> <coluna> | trocar <peca> | passar\n\n");
     
-    printf("                  ");
-    for(int i = 0; i < gerenciador.listJog[gerenciador.jogDaVez].ladrMao; i++) printf("   (0%d)", i+1);
-    printf("\n");
+    // printf("                  ");
+    // for(int i = 0; i < gerenciador.listJog[gerenciador.jogDaVez].ladrMao; i++) printf("   (0%d)", i+1);
+    // printf("\n");
     printf("Pecas disponiveis: ");
     printPecasJogador(gerenciador.listJog[gerenciador.jogDaVez]);
-    printf("\n\n");
-
-    printf("Jogador [%s] (T: %d | J: +%d): ", gerenciador.listJog[gerenciador.jogDaVez].nome, gerenciador.listJog[gerenciador.jogDaVez].pontTotal, gerenciador.listJog[gerenciador.jogDaVez].pontJogada);
+    printf("\n\n\n");
+    
+    erro(gerenciador.ultErro);
+    printf("Jogador [%s] (Pontuacao Total: %d): ", gerenciador.listJog[gerenciador.jogDaVez].nome, gerenciador.listJog[gerenciador.jogDaVez].pontTotal);
 }

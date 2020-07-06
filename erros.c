@@ -3,34 +3,38 @@
 
 #include "tabuleiro.h"
 #include "erros.h"
+#include "interface.h"
 
 
 int erro(int erro){
 
   switch(erro){
 
+    case SUCESSO:
+      return SUCESSO;
+
     case ERRO_MEMORIA: 
-      printf("Erro de memória.\n");
+      printf("%s ERRO DETECTADO: %s Erro de memória.\n", BG_RED, BG_END);
       return erro;
 
     case ERRO_COORD_INVALIDA: 
-      printf("Essa posicao nao existe.\n");
+      printf("%s ATENCAO: %s Essa posicao nao existe.\n", BG_RED, BG_END);
       return erro;
 
     case ERRO_COORD_OCUP:
-      printf("Essa posicao esta ocupada.\n");
+      printf("%s ATENCAO: %s Essa posicao esta ocupada.\n", BG_RED, BG_END);
       return erro;
 
     case ERRO_LADR_IGUAL:
-      printf("Esse ladrilho ja foi utilizado nessa fila!\n");
+      printf("%s ATENCAO: %s Esse ladrilho ja foi utilizado nessa fila!\n", BG_RED, BG_END);
       return erro;
     
     case ERRO_FILA_INV:
-      printf("Fila invalida!\n");
+      printf("%s ATENCAO: %s Fila invalida!\n", BG_RED, BG_END);
       return erro;
-      
+    
     default:
-      printf("Ocorreu um erro inesperado!\n");
+      printf("%s ERRO DETECTADO: %s Ocorreu um erro inesperado!\n", BG_RED, BG_END);
       return erro;
   }
 }

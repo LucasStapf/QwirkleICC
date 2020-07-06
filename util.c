@@ -90,7 +90,7 @@ int cmpStr(char *str1, char *str2){
         } 
 
         if(str1[i] >= 'A' && str1[i] <= 'z' && str2[i] >= 'A' && str2[i] <= 'z'){
-            if((str1[i] = str2[i] + 'a' - 'A') || (str2[i] = str1[i] + 'a' - 'A')){
+            if((str1[i] == str2[i] + 'a' - 'A') || (str2[i] == str1[i] + 'a' - 'A')){
                 i++;
                 continue;
             } 

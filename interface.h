@@ -12,6 +12,7 @@
 #define BG_MAGENTA  "\033[45m"
 #define BG_CYAN     "\033[46m"
 #define BG_GRAY     "\033[47m"
+#define BG_END      "\033[0m"
 
 enum Cor {RED = 1, GREEN, YELLOW, BLUE, MAGENTA, CYAN, GRAY} Cor;
 
