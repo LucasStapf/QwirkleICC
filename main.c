@@ -11,7 +11,7 @@
 
 //TERMINAR O jogo
 //LOOP PRA JOGAR DNNV
-//ARUUMAR VERIFICACAO DE JOGADA
+
 
 
 //x  y coordenada do jogo

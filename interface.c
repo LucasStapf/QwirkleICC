@@ -6,6 +6,43 @@
 void limparTela(){
   printf("\e[H\e[2J");
 }
+// ultErro ->
+void printErro(Gerenciador g){
+
+  switch(g.ultErro){
+
+    case SUCESSO:
+      break;
+
+    case ERRO_MEMORIA: 
+      printf("%s ERRO DETECTADO: %s Erro de memória.\n", BG_RED, BG_END);
+      break;
+
+    case ERRO_COORD_INVALIDA: 
+      printf("%s ATENCAO: %s Essa posicao nao existe.\n", BG_RED, BG_END);
+      break;
+
+    case ERRO_COORD_OCUP:
+      printf("%s ATENCAO: %s Essa posicao esta ocupada.\n", BG_RED, BG_END);
+      break;
+
+    case ERRO_LADR_IGUAL:
+      printf("%s ATENCAO: %s Esse ladrilho ja foi utilizado nessa fila!\n", BG_RED, BG_END);
+      break;
+    
+    case ERRO_FILA_INV:
+      printf("%s ATENCAO: %s Fila invalida!\n", BG_RED, BG_END);
+      break;
+
+    case ERRO_CMD_INV:
+      printf("%s ATENCAO: %s Comando invalido!\n", BG_RED, BG_END);
+      break;
+    
+    default:
+      printf("%s ERRO DETECTADO: %s Ocorreu um erro inesperado!\n", BG_RED, BG_END);
+      break;
+  }
+}
 
 void printLadrilho(Ladrilho lad){
   
@@ -153,8 +190,8 @@ void printJogo(Gerenciador gerenciador){
     // printf("\n");
     printf("Pecas disponiveis: ");
     printPecasJogador(gerenciador.listJog[gerenciador.jogDaVez]);
-    printf("\n\n\n");
+    printf("\n\n");
     
-    erro(gerenciador.ultErro);
+    printErro(gerenciador);
     printf("Jogador [%s] (Pontuacao Total: %d): ", gerenciador.listJog[gerenciador.jogDaVez].nome, gerenciador.listJog[gerenciador.jogDaVez].pontTotal);
 }

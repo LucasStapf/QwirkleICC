@@ -32,6 +32,10 @@ int erro(int erro){
     case ERRO_FILA_INV:
       printf("%s ATENCAO: %s Fila invalida!\n", BG_RED, BG_END);
       return erro;
+
+    case ERRO_CMD_INV:
+      printf("%s ATENCAO: %s Comando invalido!\n", BG_RED, BG_END);
+      return erro;
     
     default:
       printf("%s ERRO DETECTADO: %s Ocorreu um erro inesperado!\n", BG_RED, BG_END);

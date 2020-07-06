@@ -49,6 +49,7 @@ int iniciarGerenciador(Gerenciador *g){
   g->fila = 'n';
   g->primJogada = TRUE;
   g->estado = 1;
+  g->ultErro = SUCESSO;
   
   for (int i = 0; i < n; i++){
     
@@ -436,6 +437,8 @@ void verifPont(Gerenciador *g){
 
 void escolherComando(Gerenciador *g){
 
+  g->ultErro = SUCESSO;
+  
   setbuf(stdin, NULL);
   
   char cmd[100];
@@ -593,6 +596,8 @@ void escolherComando(Gerenciador *g){
     }
   
   } else {
-    printf("Comando invalido\n");
+
+    g->ultErro = ERRO_CMD_INV;
+    return;
   }
 }

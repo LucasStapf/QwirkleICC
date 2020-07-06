@@ -8,6 +8,7 @@
 #define ERRO_COORD_OCUP      -3
 #define ERRO_LADR_IGUAL      -4
 #define ERRO_FILA_INV        -5
+#define ERRO_CMD_INV         -6
 
 
 
