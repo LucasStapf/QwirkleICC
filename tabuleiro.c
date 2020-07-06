@@ -44,7 +44,9 @@ void ordenarListLadr(Ladrilho *list, int qnt){
 
 void embaralharLadr(Ladrilho *vetor, int tamanhoVetor){
 
-  srand(time(NULL));
+  unsigned static int r;
+  srand(time(NULL) + r);
+  r++;
   
 	for (int i = 0; i < tamanhoVetor; i++){
 		int r = rand() % tamanhoVetor;
@@ -61,12 +63,12 @@ void embaralharLadr(Ladrilho *vetor, int tamanhoVetor){
 int iniciarTabuleiro(Tabuleiro *tab){
 
   tab->ladr = (Ladrilho*) malloc(QNT_PECAS*sizeof(Ladrilho));
-  if(tab->ladr == NULL) return ERRO_MEMORIA;
+  if(tab->ladr == NULL) return erro(ERRO_MEMORIA);
 
   tab->matriz = (Ladrilho**) malloc(DIM*sizeof(Ladrilho*));
   if(tab->matriz == NULL){
     free(tab->ladr);
-    return ERRO_MEMORIA;
+    return erro(ERRO_MEMORIA);
   }
 
   for(int i = 0; i < DIM; i++){
@@ -76,7 +78,7 @@ int iniciarTabuleiro(Tabuleiro *tab){
       for(int j = i; j >= 0; j--) free(tab->matriz[i]);
       free(tab->matriz);
       free(tab->ladr);
-      return ERRO_MEMORIA;
+      return erro(ERRO_MEMORIA);
     }
   }
 
@@ -98,8 +100,7 @@ int iniciarTabuleiro(Tabuleiro *tab){
   tab->cEsq = 0;
   tab->cDir = 0;
 
-  return SUCESSO;
-
+  return erro(SUCESSO);
 }
 
 int resetarTab(Tabuleiro *tabuleiro){
@@ -122,7 +123,7 @@ int resetarTab(Tabuleiro *tabuleiro){
         }
     }
 
-    return SUCESSO;
+    return erro(SUCESSO);
 }
 
 

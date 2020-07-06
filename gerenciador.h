@@ -3,23 +3,30 @@ typedef struct Gerenciador Gerenciador;
 #ifndef GERENCIADOR_H
 #define GERENCIADOR_H
 
+#include "tabuleiro.h"
+#include "jogador.h"
+
+
 #define NUM_MAX 18
 #define QWIRKLE 12
 
-#include "jogador.h"
-#include "tabuleiro.h"
+#define EM_JOGO       1
+#define JOGO_PARADO   2
+#define EXIT          3
+
 
 typedef struct Gerenciador {
 
   Tabuleiro tab;
 
-  int estado;
+  int estado; // estado de jogo (em jogo / parado)
 
   char cheat;
   int primJogada;
+  int primRodada;
 
   int coord[2];
-  char fila; // a -> ambas, l -> linha, c -> coluna, n = null
+  char fila; // 'a' -> ambas, 'l' -> linha, 'c' -> coluna, 'n' = null
 
   int jogDaVez;
   int qntJog; 

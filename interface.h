@@ -17,10 +17,11 @@
 enum Cor {RED = 1, GREEN, YELLOW, BLUE, MAGENTA, CYAN, GRAY} Cor;
 
 void limparTela();
-void printErro(Gerenciador g);
+void printErro();
 void printLadrilho(Ladrilho ladrilho);
 void printTabuleiro(Tabuleiro tab);
 void printPecasJogador(Jogador jog);
-void printJogo(Gerenciador gerenciador);
+void printJogo(Gerenciador g);
+void printPreJogo(Gerenciador g);
 
 #endif

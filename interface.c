@@ -6,10 +6,10 @@
 void limparTela(){
   printf("\e[H\e[2J");
 }
-// ultErro ->
-void printErro(Gerenciador g){
 
-  switch(g.ultErro){
+void printErro(){
+
+  switch(getUltErro()){
 
     case SUCESSO:
       break;
@@ -37,7 +37,23 @@ void printErro(Gerenciador g){
     case ERRO_CMD_INV:
       printf("%s ATENCAO: %s Comando invalido!\n", BG_RED, BG_END);
       break;
+
+    case ERRO_LADR_INDIS:
+      printf("%s ATENCAO: %s Ladrilho indisponivel!\n", BG_RED, BG_END);
+      break;
     
+    case ERRO_JOGADA_INVALIDA :
+      printf("%s ATENCAO: %s Jogada invalida!\n", BG_RED, BG_END);
+      break;
+     
+    case ERRO_LADR_ESGOTADOS :   
+      printf("%s ATENCAO: %s Nao ha mais ladrilhos disponiveis para troca!\n", BG_RED, BG_END);
+      break;
+      
+    case ERRO_LADR_INVALIDO :
+      printf("%s ATENCAO: %s Ladrilho Invalido!\n", BG_RED, BG_END);
+      break;
+      
     default:
       printf("%s ERRO DETECTADO: %s Ocorreu um erro inesperado!\n", BG_RED, BG_END);
       break;
@@ -175,23 +191,50 @@ void printPecasJogador(Jogador jog){
     }
 }
 
-void printJogo(Gerenciador gerenciador){
+void printJogo(Gerenciador g){
 
     limparTela();
-
-    printf("\n");
-    printTabuleiro(gerenciador.tab);
-    printf("\n");
-
-    printf("Comandos disponiveis: jogar <peca> <linha> <coluna> | trocar <peca> | passar\n\n");
     
-    // printf("                  ");
-    // for(int i = 0; i < gerenciador.listJog[gerenciador.jogDaVez].ladrMao; i++) printf("   (0%d)", i+1);
-    // printf("\n");
+    printf("\n");
+    if(g.primRodada == FALSE){
+      if(g.jogDaVez == 0){
+        printf("Rodada anterior: Jogador [%s] (Pontuacao Total: %d)\n", g.listJog[g.qntJog - 1].nome, g.listJog[g.qntJog - 1].pontTotal);
+      } else {
+        printf("Rodada anterior: Jogador [%s] (Pontuacao Total: %d)\n", g.listJog[g.jogDaVez - 1].nome, g.listJog[g.jogDaVez - 1].pontTotal);
+      }
+    }
+
+    printf("\n");
+    printTabuleiro(g.tab);
+    printf("\n");
+
+    printf("Comandos disponiveis: %s Jogar %s <peca> <linha> <coluna> | %s Trocar %s <peca_1> ... <peca_n> | %s Passar %s\n\n", BG_BLUE, BG_END, BG_BLUE, BG_END, BG_BLUE, BG_END);
+    
     printf("Pecas disponiveis: ");
-    printPecasJogador(gerenciador.listJog[gerenciador.jogDaVez]);
+    printPecasJogador(g.listJog[g.jogDaVez]);
     printf("\n\n");
     
-    printErro(gerenciador);
-    printf("Jogador [%s] (Pontuacao Total: %d): ", gerenciador.listJog[gerenciador.jogDaVez].nome, gerenciador.listJog[gerenciador.jogDaVez].pontTotal);
+    printErro();
+    printf("Jogador [%s] (Pontuacao Total: %d): ", g.listJog[g.jogDaVez].nome, g.listJog[g.jogDaVez].pontTotal);
+}
+
+void printPreJogo(Gerenciador g){
+
+  limparTela();
+  printf("\n");
+  printf("  %s     %s   %s  %s      %s  %s  %s     %s  %s      %s   %s  %s  %s  %s  %s  %s       %s       %s\n", BG_RED, BG_END, BG_GREEN, BG_END,BG_GREEN, BG_END, BG_YELLOW, BG_END, BG_BLUE, BG_END, BG_MAGENTA, BG_END, BG_MAGENTA, BG_END, BG_CYAN, BG_END, BG_RED, BG_END);
+
+  printf(" %s  %s   %s  %s  %s  %s      %s  %s   %s   %s   %s  %s   %s  %s  %s  %s %s  %s   %s  %s       %s  %s\n", BG_RED, BG_END, BG_RED, BG_END, BG_GREEN, BG_END, BG_GREEN, BG_END, BG_YELLOW, BG_END, BG_BLUE, BG_END, BG_BLUE, BG_END, BG_MAGENTA, BG_END, BG_MAGENTA, BG_END, BG_CYAN, BG_END, BG_RED, BG_END); 
+
+  printf(" %s  %s   %s  %s  %s  %s   %s %s  %s  %s   %s   %s   %s      %s   %s    %s    %s  %s       %s     %s\n", BG_RED, BG_END, BG_RED, BG_END, BG_GREEN, BG_END, BG_GREEN, BG_END, BG_GREEN, BG_END, BG_YELLOW, BG_END, BG_BLUE, BG_END, BG_MAGENTA, BG_END, BG_CYAN, BG_END, BG_RED, BG_END); 
+
+  printf(" %s  %s  %s  %s   %s  %s %s   %s %s  %s    %s   %s   %s  %s  %s  %s   %s  %s %s  %s   %s  %s       %s  %s\n", BG_RED, BG_END, BG_RED, BG_END, BG_GREEN, BG_END, BG_GREEN, BG_END, BG_GREEN, BG_END, BG_YELLOW, BG_END, BG_BLUE, BG_END, BG_BLUE, BG_END, BG_MAGENTA, BG_END, BG_MAGENTA, BG_END, BG_CYAN, BG_END, BG_RED, BG_END);
+
+  printf("  %s    %s %s %s   %s  %s   %s  %s    %s     %s  %s  %s   %s  %s  %s  %s  %s  %s  %s       %s  %s       %s\n", BG_RED, BG_END, BG_RED, BG_END, BG_GREEN, BG_END, BG_GREEN, BG_END, BG_YELLOW, BG_END, BG_BLUE, BG_END, BG_BLUE, BG_END, BG_MAGENTA, BG_END, BG_MAGENTA, BG_END, BG_CYAN, BG_END, BG_RED, BG_END);
+  printf("\n");
+
+  printf("\n");
+  printf("Comandos disponiveis: %s Novo %s | %s Fechar %s\n", BG_BLUE, BG_END, BG_BLUE, BG_END);
+  printErro();
+  printf("Digite um comando: ");
 }

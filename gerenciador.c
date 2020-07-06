@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include<string.h>
+#include <ctype.h>
 
 #include "util.h"
 #include "interface.h"
@@ -40,7 +41,7 @@ int iniciarGerenciador(Gerenciador *g){
   }
 
   g->listJog = (Jogador*) malloc(n*sizeof(Jogador)); 
-  if(g->listJog == NULL) return ERRO_MEMORIA;
+  if(g->listJog == NULL) return erro(ERRO_MEMORIA);
 
   g->qntJog = n;
   g->jogDaVez = 0;
@@ -48,10 +49,10 @@ int iniciarGerenciador(Gerenciador *g){
   g->coord[1] = -1;
   g->fila = 'n';
   g->primJogada = TRUE;
-  g->estado = 1;
+  g->primRodada = TRUE;
   g->ultErro = SUCESSO;
   
-  for (int i = 0; i < n; i++){
+  for(int i = 0; i < n; i++){
     
     printf("Digite o nome do Jogador [%d]: ", i+1);
     fgets(g->listJog[i].nome, 16, stdin);
@@ -61,18 +62,25 @@ int iniciarGerenciador(Gerenciador *g){
     g->listJog[i].ladrMao = 0;
   }
 
-  printf("Modo CHEAT(S/N): ");
-  g->cheat = fgetc(stdin);
-  
-  if(iniciarTabuleiro(&g->tab) != SUCESSO){
+  do {
 
+    printf("Modo CHEAT(S/N): ");
+    char aux[10];
+    fgets(aux, 10, stdin);
+    g->cheat = aux[0];
+
+  } while(g->cheat != 's' && g->cheat != 'S' && g->cheat != 'n' && g->cheat != 'N');
+  
+  int e = iniciarTabuleiro(&g->tab);
+  if(e != SUCESSO){
     free(g->listJog);
-    return ERRO;
+    return erro(e);
   }
 
   distLadr(g);
+  g->estado = EM_JOGO;
 
-  return SUCESSO;
+  return erro(SUCESSO);
 }
 
 /*
@@ -80,8 +88,8 @@ int iniciarGerenciador(Gerenciador *g){
 */
 void encerrarGerenciador(Gerenciador *g){
 
-  liberarTabuleiro(&g->tab);
-  free(g->listJog);
+  if(g->tab.matriz != NULL) liberarTabuleiro(&g->tab);
+  if(g->listJog != NULL) free(g->listJog);
 }
 
 /*
@@ -99,7 +107,7 @@ int verifTipoFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *coun
     //tipo na linha comecando na esquerda
     while(coluna - acres >= 0 && cmpLadr(g->tab.matriz[linha][coluna-acres], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha][coluna-acres].tipo == l.tipo){
-        if (g->tab.matriz[linha][coluna-acres].cor == l.cor) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha][coluna-acres].cor == l.cor) return erro(ERRO_LADR_IGUAL);
       } else return FALSE; 
       acres++;
     }
@@ -109,7 +117,7 @@ int verifTipoFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *coun
     acres = 1;
     while(coluna + acres < DIM && cmpLadr(g->tab.matriz[linha][coluna + acres], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha][coluna + acres].tipo == l.tipo){
-        if (g->tab.matriz[linha][coluna + acres].cor == l.cor) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha][coluna + acres].cor == l.cor) return erro(ERRO_LADR_IGUAL);
       } else return FALSE; 
       acres++; 
     }
@@ -121,7 +129,7 @@ int verifTipoFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *coun
     acres = 1;
     while(linha - acres >= 0 && cmpLadr(g->tab.matriz[linha - acres][coluna],LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha - acres][coluna].tipo == l.tipo){
-        if (g->tab.matriz[linha - acres][coluna].cor == l.cor) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha - acres][coluna].cor == l.cor) return erro(ERRO_LADR_IGUAL);
       } else return FALSE;
       acres++;  
     }
@@ -131,7 +139,7 @@ int verifTipoFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *coun
     acres = 1;
     while(linha + acres < DIM && cmpLadr(g->tab.matriz[linha + acres][coluna], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha + acres][coluna].tipo == l.tipo){
-        if (g->tab.matriz[linha + acres][coluna].cor == l.cor) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha + acres][coluna].cor == l.cor) return erro(ERRO_LADR_IGUAL);
       } else return FALSE;
       acres++;
     }
@@ -139,7 +147,7 @@ int verifTipoFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *coun
 
   }
 
-  return SUCESSO;
+  return erro(SUCESSO);
 }
 
 int verifCorFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *count){
@@ -154,7 +162,7 @@ int verifCorFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *count
     //cor na linha comecando na esquerda
     while(coluna - acres >= 0 && cmpLadr(g->tab.matriz[linha][coluna-acres], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha][coluna-acres].cor == l.cor){
-        if (g->tab.matriz[linha][coluna-acres].tipo == l.tipo) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha][coluna-acres].tipo == l.tipo) return erro(ERRO_LADR_IGUAL);
       } else return FALSE;
       acres++;
     }
@@ -164,7 +172,7 @@ int verifCorFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *count
     acres = 1;
     while(coluna + acres < DIM && cmpLadr(g->tab.matriz[linha][coluna+acres], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha][coluna+acres].cor == l.cor){
-        if (g->tab.matriz[linha][coluna+acres].tipo == l.tipo) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha][coluna+acres].tipo == l.tipo) return erro(ERRO_LADR_IGUAL);
       } else return FALSE;  
       acres++;  
     }
@@ -176,7 +184,7 @@ int verifCorFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *count
     acres = 1;
     while(linha - acres >= 0 && cmpLadr(g->tab.matriz[linha - acres][coluna], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha - acres][coluna].cor == l.cor){
-        if (g->tab.matriz[linha - acres][coluna].tipo == l.tipo) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha - acres][coluna].tipo == l.tipo) return erro(ERRO_LADR_IGUAL);
       } else return FALSE;
       acres++;
     }
@@ -185,7 +193,7 @@ int verifCorFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *count
     // cor na linha pra baixo
     while(linha + acres < DIM && cmpLadr(g->tab.matriz[linha + acres][coluna], LADR_VAZIO()) == FALSE){ // ladrilho existente
       if (g->tab.matriz[linha + acres][coluna].cor == l.cor){
-        if (g->tab.matriz[linha + acres][coluna].tipo == l.tipo) return ERRO_LADR_IGUAL;
+        if (g->tab.matriz[linha + acres][coluna].tipo == l.tipo) return erro(ERRO_LADR_IGUAL);
       } else return FALSE;  
       acres++;
     }
@@ -193,7 +201,7 @@ int verifCorFila(Gerenciador *g, Ladrilho l, int x, int y, char fila, int *count
     
   }
 
-  return SUCESSO;
+  return erro(SUCESSO);
 }
 
 /*
@@ -214,19 +222,19 @@ int jogadaValida(Gerenciador *g, Ladrilho l, int x, int y){
     }
   }
 
-  if(i >= g->listJog[g->jogDaVez].ladrMao) return erro(ERRO);
+  if(i >= g->listJog[g->jogDaVez].ladrMao) return erro(ERRO_LADR_INDIS);
 
   int count = 0;
   if(verifCorFila(g, l, x, y, 'l', &count) == SUCESSO){
     if(verifCorFila(g, l, x, y, 'c', &count) != SUCESSO){
-      if(verifTipoFila(g, l, x, y, 'c', &count) != SUCESSO) return ERRO;
-    } else if(count == 4 && g->primJogada == FALSE) return ERRO;
+      if(verifTipoFila(g, l, x, y, 'c', &count) != SUCESSO) return erro(ERRO_JOGADA_INVALIDA);
+    } else if(count == 4 && g->primJogada == FALSE) return erro(ERRO_JOGADA_INVALIDA);
   } else {
     if(verifTipoFila(g, l, x, y, 'l', &count) == SUCESSO){
       if(verifTipoFila(g, l, x, y, 'c', &count) != SUCESSO){
-        if(verifCorFila(g, l, x, y, 'c', &count) != SUCESSO) return ERRO;
-      } else if(count == 4 && g->primJogada == FALSE) return ERRO;
-    } else return ERRO;
+        if(verifCorFila(g, l, x, y, 'c', &count) != SUCESSO) return erro(ERRO_JOGADA_INVALIDA);
+      } else if(count == 4 && g->primJogada == FALSE) return erro(ERRO_JOGADA_INVALIDA);
+    } else return erro(ERRO_JOGADA_INVALIDA);
   } 
 
   if(g->fila == 'n'){
@@ -261,7 +269,7 @@ int jogadaValida(Gerenciador *g, Ladrilho l, int x, int y){
     
     int c = g->coord[1] + sent;
     while(c != coluna){
-      if(cmpLadr(g->tab.matriz[linha][c], LADR_VAZIO()) == TRUE) return ERRO;
+      if(cmpLadr(g->tab.matriz[linha][c], LADR_VAZIO()) == TRUE) return erro(ERRO_JOGADA_INVALIDA);
       c += sent;
     }
   } else if(coluna == g->coord[1] && linha != g->coord[0]){
@@ -272,7 +280,7 @@ int jogadaValida(Gerenciador *g, Ladrilho l, int x, int y){
 
     int l = g->coord[0] + sent;
     while(l != linha){
-      if(cmpLadr(g->tab.matriz[l][coluna], LADR_VAZIO()) == TRUE) return ERRO;
+      if(cmpLadr(g->tab.matriz[l][coluna], LADR_VAZIO()) == TRUE) return erro(ERRO_JOGADA_INVALIDA);
       l += sent;
     }
 
@@ -285,7 +293,7 @@ int jogadaValida(Gerenciador *g, Ladrilho l, int x, int y){
     g->listJog[g->jogDaVez].ladrMao--;
   }
 
-  return SUCESSO;
+  return erro(SUCESSO);
 }
 
 /*
@@ -296,7 +304,8 @@ int jogarLadr(Gerenciador *g, Ladrilho ladrilho, int x, int y){
   int linha = convCoordJogoMatriz(x);
   int coluna = convCoordJogoMatriz(y);
 
-  if(jogadaValida(g, ladrilho, x, y) != SUCESSO) return ERRO;
+  int e = jogadaValida(g, ladrilho, x, y);
+  if(e != SUCESSO) return erro(e);
   
   if(g->primJogada == TRUE){
     linha = convCoordJogoMatriz(0);
@@ -331,22 +340,22 @@ int jogarLadr(Gerenciador *g, Ladrilho ladrilho, int x, int y){
   if(y <= g->tab.cEsq) g->tab.cEsq = y;
   if(y >= g->tab.cDir) g->tab.cDir = y;
 
-  return SUCESSO;
+  return erro(SUCESSO);
 }
 
 int trocarLadr(Gerenciador *g, Ladrilho l){
 
-  if(g->tab.ladrDisp <= 0) return erro(ERRO); //
+  if(g->tab.ladrDisp <= 0) return erro(ERRO_LADR_ESGOTADOS); 
   
   unsigned static int r;
   srand(time(NULL) + r);
   
   int i;
-  for(i = 0; i < g->listJog[g->jogDaVez].ladrMao; i++){
+  for(i = 0; i < LADR_MAO; i++){
     if(cmpLadr(g->listJog[g->jogDaVez].ladr[i], l) == TRUE) break;
   }
 
-  if(i == g->listJog[g->jogDaVez].ladrMao) return ERRO;
+  if(i == LADR_MAO) return erro(ERRO_LADR_INDIS);
 
   int j = rand() % g->tab.ladrDisp;
   // printf("**random: %d**\n", j);
@@ -357,7 +366,7 @@ int trocarLadr(Gerenciador *g, Ladrilho l){
   ordenarListLadr(g->tab.ladr, QNT_PECAS);
   r++;
 
-  return SUCESSO;
+  return erro(SUCESSO);
 }
 
 /*
@@ -437,59 +446,68 @@ void verifPont(Gerenciador *g){
 
 void escolherComando(Gerenciador *g){
 
-  g->ultErro = SUCESSO;
-  
-  setbuf(stdin, NULL);
+  fseek(stdin, 0, SEEK_END);
+
+  int retorno;
+  erro(SUCESSO);
   
   char cmd[100];
   fgets(cmd, 100, stdin);
   cmd[strlen(cmd) - 1] = '\0';
-  printf("\nO comando eh: %s\n", cmd);
-  //jogar, passar, trocar
-  char *token;
+
+  char *token = NULL;
   token = strtok(cmd, " ");
+
+  if(token == NULL){
+    erro(ERRO_CMD_INV);
+    return;
+  }
 
   if(cmpStr(token, "jogar") == TRUE || cmpStr(token, "j") == TRUE){
 
-    printf("Jogar!\n");
-
+    if(g->estado != EM_JOGO){
+      erro(ERRO_CMD_INV);
+      return;
+    }
+    
     token = strtok(NULL, " ");
 
     if(token == NULL){
-      printf("Comando invalido!\n");
+      erro(ERRO_CMD_INV);
       return;
     }
 
     if(strlen(token) != 2){
-      printf("Peca invalida! Jogue novamente!\n");
+      erro(ERRO_LADR_INVALIDO);
       return;
     }
 
     if((token[0] < 'A' || token[0] > 'F') && (token[0] < 'a' || token[0] > 'f')){
-      printf("Peca invalida! Jogue novamente!\n");
+      erro(ERRO_LADR_INVALIDO);
       return;
     } 
     
     if(token[1] < '0' || token[1] > '9'){
-      printf("Peca invalida! Jogue novamente!\n");
+      erro(ERRO_LADR_INVALIDO);
       return;
     }
 
-    Ladrilho l;
-    l.tipo = token[0];
+    Ladrilho l; 
+    token[0] = toupper(token[0]);
+    l.tipo = token[0]; 
     l.cor = atoi(&token[1]);
 
     token = strtok(NULL, " ");
 
     if(token == NULL){
-      printf("Comando invalido!\n");
+      erro(ERRO_CMD_INV);
       return;
     }
     
     for(int i = 0; token[i] != '\0'; i++){ 
       if(token[0] == '-' && i == 0) continue;
       if(token[i] < '0' || token[i] > '9'){
-        printf("Coordenada invalida! Jogue novamente!\n");
+        erro(ERRO_COORD_INVALIDA);
         return;
       }
     }
@@ -499,14 +517,14 @@ void escolherComando(Gerenciador *g){
 
     token = strtok(NULL, " ");
     if(token == NULL){
-      printf("Comando invalido!\n");
+      erro(ERRO_CMD_INV);
       return;
     }
     
     for(int i = 0; token[i] != '\0'; i++){
       if(token[0] == '-' && i == 0) continue;
       if(token[i] < '0' || token[i] > '9'){
-        printf("Coordenada invalida! Jogue novamente!\n");
+        erro(ERRO_COORD_INVALIDA);
         return;       
       }
     }
@@ -514,14 +532,19 @@ void escolherComando(Gerenciador *g){
     if(strlen(token) == 1 && token[0] == '-') return;
     int y = atoi(token);
     
-    if(jogarLadr(g, l, x, y) != SUCESSO){
-      printf("Jogada invalida! Jogue novamente!\n");
+    retorno = jogarLadr(g, l, x, y);
+    if(retorno != SUCESSO){
+      erro(retorno);
       return;
     }
     
   } else if(cmpStr(token, "passar") == TRUE || cmpStr(token, "p") == TRUE){
     
-    printf("Passar!\n");
+    if(g->estado != EM_JOGO){
+      erro(ERRO_CMD_INV);
+      return;
+    }
+
     verifPont(g);
 
     g->fila = 'n';
@@ -538,35 +561,45 @@ void escolherComando(Gerenciador *g){
       }
     }
 
+    g->primRodada = FALSE;
     g->jogDaVez++;
     if(g->jogDaVez >= g->qntJog) g->jogDaVez = 0;      
     
   } else if(cmpStr(token, "trocar") == TRUE || cmpStr(token, "t") == TRUE){
-    printf("Trocar!\n");
+    
+    if(g->estado != EM_JOGO){
+      erro(ERRO_CMD_INV);
+      return;
+    }
+
+    if(g->listJog[g->jogDaVez].ladrMao < 6){
+      erro(ERRO_CMD_INV);
+      return;
+    }
 
     int qntLadr = 0;
     Ladrilho ladrCMD[6];
     token = strtok(NULL, " ");
-    //t A1 A2 A3
+    
     do {
       
       if(token == NULL){
-        printf("Comando invalido!\n");
+        erro(ERRO_CMD_INV);
         return;
       }
 
       if(strlen(token) != 2){
-        printf("Peca invalida! Jogue novamente!\n");
+        erro(ERRO_LADR_INVALIDO);
         return;
       }
 
       if((token[0] < 'A' || token[0] > 'F') && (token[0] < 'a' || token[0] > 'f')){
-        printf("Peca invalida! Jogue novamente!\n");
+        erro(ERRO_LADR_INVALIDO);
         return;
       } 
     
       if(token[1] < '0' || token[1] > '9'){
-        printf("Peca invalida! Jogue novamente!\n");
+        erro(ERRO_LADR_INVALIDO);
         return;
       }
 
@@ -594,10 +627,64 @@ void escolherComando(Gerenciador *g){
         return;
       }
     }
+
+    g->primRodada = FALSE;
+    g->jogDaVez++;
+    if(g->jogDaVez >= g->qntJog) g->jogDaVez = 0;
+    
   
+  } else if(cmpStr(token, "sair") == TRUE || cmpStr(token, "s") == TRUE){
+    
+    if(g->estado != EM_JOGO){
+      erro(ERRO_CMD_INV);
+      return;
+    }
+
+    Jogador aux;
+    aux.pontTotal = 0;
+
+    for(int i = 0; i < g->qntJog; i++){
+      if(g->listJog[i].pontTotal >= aux.pontTotal) aux = g->listJog[i];
+    }
+
+    g->estado = JOGO_PARADO;
+    printf("Ganhador: %s (Pontuacao Total: %d)\n", aux.nome, aux.pontTotal);
+
+  } else if(cmpStr(token, "fechar") == TRUE || cmpStr(token, "f") == TRUE){
+
+    if(g->estado != JOGO_PARADO){
+      erro(ERRO_CMD_INV);
+      return;
+    }
+
+    g->estado = EXIT;
+
+  } else if(cmpStr(token, "novo") == TRUE || cmpStr(token, "n") == TRUE){
+
+    if(g->estado != JOGO_PARADO){
+      erro(ERRO_CMD_INV);
+      return;
+    }
+
+    encerrarGerenciador(g);
+    retorno = iniciarGerenciador(g);
+    if(retorno != SUCESSO){
+      erro(retorno);
+      return;
+    }
+
+    g->estado = EM_JOGO;
+
   } else {
 
-    g->ultErro = ERRO_CMD_INV;
+    erro(ERRO_CMD_INV);
     return;
   }
 }
+
+// jogar -> EM_JOGO
+// passar -> EM_JOGO
+// trocar -> EM_JOGO
+// sair -> EM_JOGO
+// novo -> JOGO_PARADO
+// fechar -> JOGO_PARADO

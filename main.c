@@ -12,6 +12,8 @@
 //TERMINAR O jogo
 //LOOP PRA JOGAR DNNV
 
+//verificar modo cheat S ou N
+
 
 
 //x  y coordenada do jogo
@@ -25,8 +27,27 @@ calcular pontos
 */
 
 int main(void) {
-  
+
   Gerenciador g;
+  g.listJog = NULL;
+  g.tab.matriz = NULL;
+  g.estado = JOGO_PARADO;
+
+  while(g.estado == JOGO_PARADO || g.estado == EM_JOGO){
+
+    if(g.estado == EM_JOGO){
+      printJogo(g);
+      escolherComando(&g);
+    } else {
+      printPreJogo(g);
+      escolherComando(&g);
+    }
+  }
+
+  encerrarGerenciador(&g);
+  
+  
+  /*Gerenciador g;
 
   if(iniciarGerenciador(&g) != SUCESSO){
     printf("Deu ruim!\n");
@@ -39,7 +60,7 @@ int main(void) {
     escolherComando(&g);
   }
 
-  encerrarGerenciador(&g);
+  encerrarGerenciador(&g);*/
   
 
   /*
