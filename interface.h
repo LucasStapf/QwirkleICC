@@ -17,6 +17,7 @@
 enum Cor {RED = 1, GREEN, YELLOW, BLUE, MAGENTA, CYAN, GRAY} Cor;
 
 void limparTela();
+void printLogo();
 void printErro();
 void printLadrilho(Ladrilho ladrilho);
 void printTabuleiro(Tabuleiro tab);

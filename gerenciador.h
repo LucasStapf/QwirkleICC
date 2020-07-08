@@ -35,8 +35,6 @@ typedef struct Gerenciador {
   int jogadasRodada;
   int ultJogadas[6][2];
 
-  int ultErro;
-
 } Gerenciador;
 
 void distLadr(Gerenciador *g);
@@ -53,6 +51,8 @@ int trocarLadr(Gerenciador *g, Ladrilho l);
 void verifPont(Gerenciador *g);
 
 void escolherComando(Gerenciador *g);
+
+int verifGanhador(Gerenciador *g);
 
 #endif
 

@@ -8,11 +8,7 @@
 #include "gerenciador.h"
 #include "util.h"
 #include "jogador.h"
-
-//TERMINAR O jogo
-//LOOP PRA JOGAR DNNV
-
-//verificar modo cheat S ou N
+#include "help.h"
 
 
 
@@ -28,6 +24,8 @@ calcular pontos
 
 int main(void) {
 
+  // gerenHelp();
+  
   Gerenciador g;
   g.listJog = NULL;
   g.tab.matriz = NULL;
@@ -36,8 +34,11 @@ int main(void) {
   while(g.estado == JOGO_PARADO || g.estado == EM_JOGO){
 
     if(g.estado == EM_JOGO){
+
       printJogo(g);
       escolherComando(&g);
+      verifGanhador(&g);
+      
     } else {
       printPreJogo(g);
       escolherComando(&g);

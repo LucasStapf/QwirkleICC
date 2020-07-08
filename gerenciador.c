@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -33,12 +34,24 @@ void distLadr(Gerenciador *g){
 */
 int iniciarGerenciador(Gerenciador *g){
   
-  printf("Escolha o numero de jogadores: ");
   int n;
+
+  limparTela();
+  printLogo();
+  printErro();
+  printf("Escolha o numero de jogadores: ");
+
   while (lerIntSTDIN(&n) == ERRO || n <= 0 || n > NUM_MAX){
-    printf("Numero de jogadores invalido. Escolha novamente.\n");
+    // printf("Numero de jogadores invalido. Escolha novamente.\n");
+    erro(ERRO_NUM_JOG_INV);
+    limparTela();
+    printLogo();
+    printErro();
+    printf("Escolha o numero de jogadores: ");
     setbuf(stdin, NULL);  
   }
+
+  erro(SUCESSO);
 
   g->listJog = (Jogador*) malloc(n*sizeof(Jogador)); 
   if(g->listJog == NULL) return erro(ERRO_MEMORIA);
@@ -50,9 +63,12 @@ int iniciarGerenciador(Gerenciador *g){
   g->fila = 'n';
   g->primJogada = TRUE;
   g->primRodada = TRUE;
-  g->ultErro = SUCESSO;
   
   for(int i = 0; i < n; i++){
+
+    limparTela();
+    printLogo();
+    printErro();
     
     printf("Digite o nome do Jogador [%d]: ", i+1);
     fgets(g->listJog[i].nome, 16, stdin);
@@ -63,6 +79,10 @@ int iniciarGerenciador(Gerenciador *g){
   }
 
   do {
+
+    limparTela();
+    printLogo();
+    printErro();
 
     printf("Modo CHEAT(S/N): ");
     char aux[10];
@@ -358,7 +378,6 @@ int trocarLadr(Gerenciador *g, Ladrilho l){
   if(i == LADR_MAO) return erro(ERRO_LADR_INDIS);
 
   int j = rand() % g->tab.ladrDisp;
-  // printf("**random: %d**\n", j);
   Ladrilho aux = l;
   g->listJog[g->jogDaVez].ladr[i] = g->tab.ladr[j];
   g->tab.ladr[j] = aux;
@@ -423,8 +442,11 @@ void verifPont(Gerenciador *g){
 
   if(g->fila == 'a'){ // apenas 1 jogada
 
+    int aux = g->listJog[g->jogDaVez].pontTotal;
     g->listJog[g->jogDaVez].pontTotal += pontuacaoFila(*g, g->ultJogadas[0][0], g->ultJogadas[0][1], 'l');
     g->listJog[g->jogDaVez].pontTotal += pontuacaoFila(*g, g->ultJogadas[0][0], g->ultJogadas[0][1], 'c');
+    
+    if(g->listJog[g->jogDaVez].pontTotal == aux) g->listJog[g->jogDaVez].pontTotal++;
 
   } else if(g->fila == 'l'){ //
 
@@ -442,6 +464,55 @@ void verifPont(Gerenciador *g){
     }
     g->listJog[g->jogDaVez].pontTotal += pontuacaoFila(*g, g->ultJogadas[0][0], g->ultJogadas[0][1], 'c');
   }
+}
+/*
+*
+*/
+int verifGanhador(Gerenciador *g){
+  
+  if(g->tab.ladrDisp <= 0 ){
+    for(int i = 0; i < g->qntJog; i++){
+      if(g->listJog[i].ladrMao <= 0){
+
+        Jogador aux;
+        aux.pontTotal = -1;
+
+        int qnt_vencedores = 1;
+        int id_vencedores[g->qntJog];
+        for(int i = 0; i < g->qntJog; i++){
+
+          if(g->listJog[i].pontTotal > aux.pontTotal){
+            aux = g->listJog[i];
+            qnt_vencedores = 1;
+            id_vencedores[qnt_vencedores - 1] = i;
+
+          } else if(g->listJog[i].pontTotal == aux.pontTotal){
+            qnt_vencedores++;
+            id_vencedores[qnt_vencedores - 1] = i;    
+          } 
+       }
+
+        if(qnt_vencedores == 1){
+          printf("Ganhador: %s (Pontuacao Total: %d)\n", aux.nome, aux.pontTotal);
+        } else {
+          printf("Empate: \n");
+          for(int i = 0; i < qnt_vencedores; i++){
+            aux = g->listJog[id_vencedores[i]];
+            printf("%s (Pontuacao Total: %d) |\n", aux.nome, aux.pontTotal);
+          }     
+        }
+
+        g->estado = JOGO_PARADO;
+        printf("Pressione qualquer tecla para continuar\n");
+        fgetc(stdin);
+
+        return TRUE;
+      } 
+    }
+
+    return FALSE;
+
+  } else return FALSE;
 }
 
 void escolherComando(Gerenciador *g){
@@ -641,14 +712,34 @@ void escolherComando(Gerenciador *g){
     }
 
     Jogador aux;
-    aux.pontTotal = 0;
+    aux.pontTotal = -1;
 
+    int qnt_vencedores = 1;
+    int id_vencedores[g->qntJog];
     for(int i = 0; i < g->qntJog; i++){
-      if(g->listJog[i].pontTotal >= aux.pontTotal) aux = g->listJog[i];
-    }
 
+      if(g->listJog[i].pontTotal > aux.pontTotal){
+        aux = g->listJog[i];
+        qnt_vencedores = 1;
+        id_vencedores[qnt_vencedores - 1] = i;
+
+      } else if(g->listJog[i].pontTotal == aux.pontTotal){
+        qnt_vencedores++;
+        id_vencedores[qnt_vencedores - 1] = i;    
+      }    
+    }
     g->estado = JOGO_PARADO;
-    printf("Ganhador: %s (Pontuacao Total: %d)\n", aux.nome, aux.pontTotal);
+    if(qnt_vencedores == 1){
+      printf("Ganhador: %s (Pontuacao Total: %d)\n", aux.nome, aux.pontTotal);
+    } else {
+      printf("Empate: \n");
+      for(int i = 0; i < qnt_vencedores; i++){
+        aux = g->listJog[id_vencedores[i]];
+        printf("%s (Pontuacao Total: %d) |\n", aux.nome, aux.pontTotal);
+      }
+    }
+    printf("Pressione qualquer tecla para continuar\n");
+    fgetc(stdin);
 
   } else if(cmpStr(token, "fechar") == TRUE || cmpStr(token, "f") == TRUE){
 
