@@ -6,7 +6,7 @@ typedef struct Tabuleiro Tabuleiro;
 
 
 #define DIM       217
-#define QNT_PECAS 18 //108
+#define QNT_PECAS 108
 
 typedef struct Ladrilho {
 
